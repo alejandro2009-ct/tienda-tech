@@ -202,13 +202,9 @@ btnCart.addEventListener('click', () => cartModal.classList.remove('hidden'));
 closeModal.addEventListener('click', () => cartModal.classList.add('hidden'));
 
 // 8. Checkout y Facturación
+// --- Evento Checkout: Actualizar Stock, Descargar PDF y Enviar Correo ---
 checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    if (carrito.length === 0) {
-        alert("El carrito está vacío.");
-        return;
-    }
 
     const cliente = document.getElementById('client-name').value;
     const email = document.getElementById('client-email').value;
@@ -219,34 +215,83 @@ checkoutForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    for (const item of carrito) {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                action: 'updateStock',
-                id: item.id,
-                cantidad: item.cantidad
-            })
-        });
+    const btnPay = checkoutForm.querySelector('.btn-pay');
+    const textoOriginal = btnPay ? btnPay.innerText : "Pagar";
+    if (btnPay) {
+        btnPay.innerText = "Procesando pago y enviando factura...";
+        btnPay.disabled = true;
     }
 
-    generarFacturaPDF(cliente, email);
+    try {
+        // 1. Actualizar el stock en Google Sheets
+        for (const item of carrito) {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'updateStock',
+                    id: item.id,
+                    cantidad: item.cantidad
+                })
+            });
+        }
 
-    alert(`¡Pago simulado con éxito!\nFactura generada para ${cliente}.`);
+        // 2. Generar y descargar el PDF localmente
+        generarFacturaPDF(cliente, email);
 
-    carrito = [];
-    actualizarCarritoUI();
-    checkoutForm.reset();
-    cartModal.classList.add('hidden');
+        // 3. Formatear la lista de productos para el correo de EmailJS
+        let listaProductos = "";
+        let totalFactura = 0;
 
-    setTimeout(() => {
-        cargarProductosDesdeSheets();
-    }, 1500);
+        carrito.forEach(prod => {
+            const subtotal = prod.precio * prod.cantidad;
+            totalFactura += subtotal;
+            listaProductos += `• ${prod.nombre} (x${prod.cantidad}): $${subtotal.toFixed(2)}\n`;
+        });
+
+        // 4. Parámetros para enviar por EmailJS
+        const params = {
+            cliente_nombre: cliente,
+            cliente_email: email,
+            numero_factura: Math.floor(100000 + Math.random() * 900000),
+            fecha: new Date().toLocaleDateString('es-SV'),
+            total_pago: totalFactura.toFixed(2),
+            detalles_compra: listaProductos
+        };
+
+        // 5. Enviar correo usando EmailJS
+        await emailjs.send("TU_SERVICE_ID", "TU_TEMPLATE_ID", params);
+
+        alert(`¡Pago simulado con éxito!\nFactura descargada y enviada al correo: ${email}`);
+
+        // Limpiar carrito y cerrar modal
+        carrito = [];
+        if (typeof actualizarCarritoUI === "function") {
+            actualizarCarritoUI();
+        }
+        checkoutForm.reset();
+        const cartModal = document.getElementById('cart-modal');
+        if (cartModal) cartModal.classList.add('hidden');
+
+        setTimeout(() => {
+            if (typeof cargarProductosDesdeSheets === "function") {
+                cargarProductosDesdeSheets();
+            }
+        }, 1500);
+
+    } catch (error) {
+        alert("Ocurrió un error al procesar la transacción o enviar el correo.");
+        console.error("Error en checkout:", error);
+    } finally {
+        if (btnPay) {
+            btnPay.innerText = textoOriginal;
+            btnPay.disabled = false;
+        }
+    }
 });
 
-// 9. Generador de PDF
+// --- Generador de PDF ---
 function generarFacturaPDF(cliente, email) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -257,38 +302,35 @@ function generarFacturaPDF(cliente, email) {
     doc.setFontSize(11);
     doc.text(`Cliente: ${cliente}`, 14, 32);
     doc.text(`Correo electrónico: ${email}`, 14, 38);
-    doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 44);
 
-    doc.text("----------------------------------------------------------------------------------", 14, 50);
+    let y = 50;
+    let total = 0;
 
-    let y = 60;
-    doc.setFontSize(12);
     doc.text("Producto", 14, y);
     doc.text("Cant.", 120, y);
-    doc.text("Precio Unit.", 145, y);
-    doc.text("Subtotal", 175, y);
-
+    doc.text("Precio", 150, y);
+    doc.text("Subtotal", 180, y);
     y += 6;
-    doc.setFontSize(10);
 
-    let total = 0;
-    carrito.forEach(item => {
-        const subtotal = item.precio * item.cantidad;
+    doc.line(14, y, 196, y);
+    y += 8;
+
+    carrito.forEach(prod => {
+        const subtotal = prod.precio * prod.cantidad;
         total += subtotal;
-        doc.text(item.nombre.substring(0, 35), 14, y);
-        doc.text(item.cantidad.toString(), 125, y);
-        doc.text(`$${item.precio.toFixed(2)}`, 145, y);
-        doc.text(`$${subtotal.toFixed(2)}`, 175, y);
+
+        doc.text(prod.nombre, 14, y);
+        doc.text(prod.cantidad.toString(), 120, y);
+        doc.text(`$${prod.precio.toFixed(2)}`, 150, y);
+        doc.text(`$${subtotal.toFixed(2)}`, 180, y);
         y += 8;
     });
 
-    doc.text("----------------------------------------------------------------------------------", 14, y);
-    y += 8;
+    doc.line(14, y, 196, y);
+    y += 10;
+
     doc.setFontSize(13);
     doc.text(`TOTAL PAGADO: $${total.toFixed(2)}`, 130, y);
 
     doc.save(`Factura_TechStore_${Date.now()}.pdf`);
 }
-
-// Inicializar
-cargarProductosDesdeSheets();
