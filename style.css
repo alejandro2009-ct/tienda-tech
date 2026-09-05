@@ -1,11 +1,11 @@
 /* --- Variables de Color (Inspirado en Zona Digital) --- */
 :root {
-    --bg-dark: #0f172a;
-    --header-bg: #1e293b;
+    --bg-dark: #0b0f19;
+    --header-bg: #151c2c;
     --accent-blue: #2563eb;
     --accent-light-blue: #38bdf8;
     --card-bg: #ffffff;
-    --text-dark: #1e293b;
+    --text-dark: #0f172a;
     --text-muted: #64748b;
     --price-color: #16a34a;
 }
@@ -14,42 +14,45 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    background-color: #f1f5f9;
-    color: #333;
+    background-color: #f8fafc;
+    color: #1e293b;
 }
 
-/* --- Top Announcement Bar --- */
+/* --- Top Bar --- */
 .top-bar {
-    background-color: #2563eb;
-    color: white;
+    background: linear-gradient(90deg, #1d4ed8, #2563eb);
+    color: #ffffff;
     text-align: center;
-    padding: 0.5rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
 }
 
 /* --- Header Principal --- */
 .main-header {
     background-color: var(--header-bg);
-    color: white;
-    padding: 1rem 1.5rem;
+    color: #ffffff;
+    padding: 0.8rem 1rem;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 .header-container {
     max-width: 1200px;
     margin: 0 auto;
+}
+
+.header-top-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    margin-bottom: 0.6rem;
 }
 
 .logo {
@@ -59,98 +62,109 @@ body {
 }
 
 .logo-icon {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     color: var(--accent-light-blue);
 }
 
 .logo h1 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 800;
+    color: #ffffff;
     letter-spacing: -0.5px;
 }
 
-/* Buscador */
-.search-box {
-    display: flex;
-    flex: 1;
-    max-width: 500px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 0.6rem 1rem;
-    border: none;
-    border-radius: 6px 0 0 6px;
-    font-size: 0.95rem;
-    outline: none;
-}
-
-.search-box button {
-    background-color: var(--accent-blue);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 0 6px 6px 0;
-    cursor: pointer;
-}
-
-/* Botones de Header */
+/* Acciones en Header */
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.8rem;
 }
 
 .icon-btn {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 1.4rem;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #ffffff;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
     cursor: pointer;
     position: relative;
 }
 
 .badge {
     position: absolute;
-    top: -6px;
-    right: -10px;
+    top: -5px;
+    right: -5px;
     background-color: var(--accent-light-blue);
-    color: #000;
-    font-size: 0.75rem;
+    color: #0f172a;
+    font-size: 0.7rem;
     font-weight: bold;
     padding: 2px 6px;
-    border-radius: 50%;
+    border-radius: 10px;
 }
 
-/* --- Navigation Bar --- */
+/* Buscador Adaptable */
+.search-box {
+    display: flex;
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.55rem 0.8rem;
+    border: none;
+    border-radius: 6px 0 0 6px;
+    font-size: 0.88rem;
+    outline: none;
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.search-box button {
+    background-color: var(--accent-blue);
+    color: #ffffff;
+    border: none;
+    padding: 0.55rem 1rem;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+}
+
+/* --- Categorías (Scroll horizontal suave) --- */
 .categories-nav {
-    background-color: #0f172a;
-    border-top: 1px solid #334155;
-    padding: 0.6rem 1.5rem;
+    background-color: var(--bg-dark);
+    border-top: 1px solid #1e293b;
+    padding: 0.5rem 0.8rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.categories-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .nav-container {
-    max-width: 1200px;
-    margin: 0 auto;
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
     white-space: nowrap;
 }
 
 .nav-link {
-    color: #cbd5e1;
+    color: #94a3b8;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    padding: 0.3rem 0.8rem;
-    border-radius: 4px;
-    transition: all 0.2s;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    background-color: #151c2c;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link.active, .nav-link:hover {
     background-color: var(--accent-blue);
-    color: white;
+    color: #ffffff;
 }
 
 .nav-link.highlight-gamer {
@@ -161,127 +175,158 @@ body {
 /* --- Panel de la Laptop Madre (Oculto) --- */
 .admin-panel {
     background: #ffffff;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin: 1.5rem auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    border-left: 6px solid var(--accent-blue);
+    padding: 1rem;
+    border-radius: 10px;
+    margin: 1rem auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-left: 5px solid var(--accent-blue);
 }
 
 .admin-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
 }
 
 .btn-close-admin {
     background: none;
     border: none;
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     cursor: pointer;
 }
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 0.8rem;
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
 }
 
 .form-grid input {
-    padding: 0.6rem;
+    padding: 0.55rem;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
+    font-size: 0.85rem;
 }
 
 .btn-add-prod {
     background-color: var(--accent-blue);
     color: white;
     border: none;
-    padding: 0.7rem;
+    padding: 0.65rem;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
+    font-size: 0.88rem;
 }
 
-/* --- Catálogo de Productos --- */
+/* --- Catálogo de Productos (Optimizado para Celular y Laptop) --- */
 .container {
     max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    margin: 1.2rem auto;
+    padding: 0 0.8rem;
 }
 
 .section-title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: var(--text-dark);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-weight: 700;
 }
 
+/* Grilla en celular: 2 columnas compactas */
 .product-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.8rem;
 }
 
 .product-card {
     background: var(--card-bg);
-    border-radius: 8px;
-    padding: 1.2rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border-radius: 10px;
+    padding: 0.8rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid #e2e8f0;
-}
-
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
 }
 
 .product-card img {
     width: 100%;
-    height: 160px;
+    height: 110px;
     object-fit: contain;
-    margin-bottom: 1rem;
+    margin-bottom: 0.6rem;
+    border-radius: 4px;
 }
 
 .product-card h3 {
-    font-size: 0.95rem;
+    font-size: 0.82rem;
     color: var(--text-dark);
-    margin-bottom: 0.5rem;
-    height: 2.8em;
+    margin-bottom: 0.3rem;
+    line-height: 1.2;
+    height: 2.4em;
     overflow: hidden;
 }
 
 .product-card .price {
-    font-size: 1.3rem;
+    font-size: 1.05rem;
     color: var(--price-color);
-    font-weight: bold;
-    margin-bottom: 0.3rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
 }
 
 .product-card .stock {
-    font-size: 0.8rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
-    margin-bottom: 1rem;
+    margin-bottom: 0.6rem;
 }
 
 .btn-add {
     background-color: var(--header-bg);
     color: white;
     border: none;
-    padding: 0.6rem;
+    padding: 0.5rem;
     border-radius: 6px;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
+    width: 100%;
 }
 
-.btn-add:hover {
-    background-color: var(--accent-blue);
+/* --- Pantallas más grandes (Laptops / Tablets) --- */
+@media (min-width: 640px) {
+    .header-container {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .header-top-row {
+        margin-bottom: 0;
+        gap: 1.5rem;
+    }
+
+    .search-box {
+        max-width: 450px;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1.2rem;
+    }
+
+    .product-card img {
+        height: 140px;
+    }
+
+    .product-card h3 {
+        font-size: 0.9rem;
+    }
+
+    .form-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
 }
 
 /* --- Modal y Formularios --- */
@@ -291,11 +336,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0,0,0,0.65);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 200;
+    padding: 0.8rem;
 }
 
 .hidden {
@@ -303,11 +349,11 @@ body {
 }
 
 .modal-content {
-    background: white;
-    width: 90%;
-    max-width: 500px;
-    padding: 2rem;
-    border-radius: 10px;
+    background: #ffffff;
+    width: 100%;
+    max-width: 480px;
+    padding: 1.2rem;
+    border-radius: 12px;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
@@ -315,44 +361,45 @@ body {
 
 .close-btn {
     position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    font-size: 1.8rem;
+    top: 0.8rem;
+    right: 1.2rem;
+    font-size: 1.6rem;
     cursor: pointer;
 }
 
 .form-group {
-    margin-top: 0.8rem;
+    margin-top: 0.6rem;
 }
 
 .form-group label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.2rem;
 }
 
 .form-group input {
     width: 100%;
-    padding: 0.6rem;
+    padding: 0.5rem;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
+    font-size: 0.85rem;
 }
 
 .form-row {
     display: flex;
-    gap: 1rem;
+    gap: 0.6rem;
 }
 
 .btn-pay {
     width: 100%;
-    margin-top: 1.5rem;
+    margin-top: 1.2rem;
     background-color: var(--price-color);
     color: white;
     border: none;
-    padding: 0.8rem;
+    padding: 0.7rem;
     border-radius: 6px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: bold;
     cursor: pointer;
 }
@@ -360,12 +407,120 @@ body {
 .cart-item {
     display: flex;
     justify-content: space-between;
-    padding: 0.6rem 0;
+    padding: 0.5rem 0;
     border-bottom: 1px solid #e2e8f0;
+    font-size: 0.85rem;
 }
 
 .divider {
-    margin: 1.5rem 0;
+    margin: 1rem 0;
     border: 0;
     border-top: 1px solid #cbd5e1;
+}
+/* --- Efectos Hover de Sombras e Iluminación en Botones --- */
+.btn-add, 
+.btn-pay, 
+.btn-add-prod, 
+.btn-primary-glow,
+.search-box button,
+.icon-btn {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sombra e iluminación al pasar el puntero (Hover) */
+.btn-add:hover {
+    background-color: var(--accent-blue);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+    transform: translateY(-2px);
+}
+
+.btn-pay:hover {
+    background-color: #15803d;
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.45);
+    transform: translateY(-2px);
+}
+
+.search-box button:hover {
+    background-color: #1d4ed8;
+    box-shadow: 0 0 12px rgba(37, 99, 235, 0.6);
+}
+
+.icon-btn:hover {
+    background: #334155;
+    border-color: var(--accent-light-blue);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    color: var(--accent-light-blue);
+    transform: scale(1.05);
+}
+
+/* --- Botón Principal del Modal --- */
+.btn-primary-glow {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent-blue), #1d4ed8);
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.btn-primary-glow:hover {
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    transform: translateY(-2px);
+}
+
+/* --- Estilos del Modal de Login Personalizado --- */
+.auth-modal-content {
+    text-align: center;
+    border: 1px solid #334155;
+    background-color: #151c2c;
+    color: #ffffff;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.auth-header {
+    margin-bottom: 1.2rem;
+}
+
+.auth-icon {
+    font-size: 2.5rem;
+    color: var(--accent-light-blue);
+    margin-bottom: 0.5rem;
+}
+
+.auth-header h2 {
+    font-size: 1.3rem;
+    color: #ffffff;
+    margin-bottom: 0.4rem;
+}
+
+.auth-header p {
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+.auth-modal-content input[type="password"] {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    color: #ffffff;
+    text-align: center;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.auth-modal-content input[type="password"]:focus {
+    outline: none;
+    border-color: var(--accent-light-blue);
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.auth-modal-content .close-btn {
+    color: #94a3b8;
+}
+
+.auth-modal-content .close-btn:hover {
+    color: #ffffff;
 }

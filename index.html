@@ -6,46 +6,47 @@
     <title>TechStore - Tienda de Tecnología</title>
     <!-- Hoja de estilos CSS -->
     <link rel="stylesheet" href="style.css">
-    <!-- Iconos de FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Iconos de FontAwesome (CDN confiable) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Librería para generar factura PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-    <!-- Top Announcement Bar -->
+    <!-- Banner Promocional -->
     <div class="top-bar">
-        <span>⚡ Preparándonos para las mejores ofertas en Hardware y Laptops ⚡</span>
+        <span>⚡ Ofertas Especiales en Hardware y Laptops ⚡</span>
     </div>
 
     <!-- Encabezado Principal -->
     <header class="main-header">
         <div class="header-container">
-            <div class="logo">
-                <i class="fa-solid fa-square-check logo-icon"></i>
-                <h1>TechStore</h1>
+            <!-- Fila Superior Mobile: Logo y Acciones -->
+            <div class="header-top-row">
+                <div class="logo">
+                    <i class="fa-solid fa-square-check logo-icon"></i>
+                    <h1>TechStore</h1>
+                </div>
+                <div class="header-actions">
+                    <button id="btn-admin-login" class="icon-btn" title="Panel Administrador">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </button>
+                    <button id="btn-cart" class="icon-btn cart-btn">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                        <span id="cart-count" class="badge">0</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- Buscador de productos -->
+            <!-- Fila Inferior: Buscador en línea completa -->
             <div class="search-box">
-                <input type="text" id="search-input" placeholder="Buscar productos, laptops, accesorios...">
+                <input type="text" id="search-input" placeholder="Buscar productos, laptops...">
                 <button id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
-            </div>
-
-            <!-- Acciones superior (Carrito y Acceso Admin) -->
-            <div class="header-actions">
-                <button id="btn-admin-login" class="icon-btn" title="Panel Administrador">
-                    <i class="fa-solid fa-user-gear"></i>
-                </button>
-                <button id="btn-cart" class="icon-btn cart-btn">
-                    <i class="fa-solid fa-cart-shopping"></i>
-                    <span id="cart-count" class="badge">0</span>
-                </button>
             </div>
         </div>
     </header>
 
-    <!-- Barra de Categorías -->
+    <!-- Barra de Categorías con Scroll Horizontal -->
     <nav class="categories-nav">
         <div class="nav-container">
             <a href="#" class="nav-link active">Todos</a>
@@ -56,10 +57,10 @@
         </div>
     </nav>
 
-    <!-- Panel de la Laptop Madre / Administrador (OCULTO POR DEFECTO) -->
+    <!-- Panel Administrador (Oculto) -->
     <section id="admin-panel" class="container admin-panel hidden">
         <div class="admin-header">
-            <h3><i class="fa-solid fa-laptop-code"></i> Panel de Control - Laptop Madre</h3>
+            <h3><i class="fa-solid fa-laptop-code"></i> Panel Laptop Madre</h3>
             <button id="close-admin" class="btn-close-admin">&times;</button>
         </div>
         <form id="add-product-form" class="form-grid">
@@ -67,26 +68,26 @@
             <input type="number" step="0.01" id="new-price" placeholder="Precio ($)" required>
             <input type="number" id="new-stock" placeholder="Stock inicial" required>
             <input type="url" id="new-image" placeholder="URL de la imagen (http://...)" required>
-            <button type="submit" class="btn-add-prod">➕ Guardar en Google Sheets</button>
+            <button type="submit" class="btn-add-prod">➕ Guardar en Sheets</button>
         </form>
     </section>
 
-    <!-- Contenido Principal: Catálogo -->
+    <!-- Catálogo de Productos -->
     <main class="container">
         <h2 class="section-title">Productos Destacados</h2>
         <div id="product-grid" class="product-grid">
-            <!-- Los productos se cargarán desde app.js -->
+            <!-- Productos cargados desde app.js -->
         </div>
     </main>
 
-    <!-- Modal del Carrito y Proceso de Pago -->
+    <!-- Modal del Carrito y Pago -->
     <div id="cart-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
-            <h2><i class="fa-solid fa-cart-shopping"></i> Tu Carrito de Compras</h2>
+            <h2><i class="fa-solid fa-cart-shopping"></i> Tu Carrito</h2>
             
             <div id="cart-items" class="cart-items-list">
-                <!-- Productos añadidos -->
+                <!-- Items agregados -->
             </div>
 
             <div class="cart-summary">
@@ -95,8 +96,7 @@
 
             <hr class="divider">
 
-            <!-- Formulario de Pago -->
-            <h3><i class="fa-solid fa-credit-card"></i> Datos de Compra y Pago Simulado</h3>
+            <h3><i class="fa-solid fa-credit-card"></i> Datos de Pago Simulado</h3>
             <form id="checkout-form">
                 <div class="form-group">
                     <label for="client-name">Nombre completo:</label>
@@ -104,12 +104,12 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="client-email">Correo electrónico (para la factura):</label>
+                    <label for="client-email">Correo electrónico:</label>
                     <input type="email" id="client-email" placeholder="ejemplo@correo.com" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="card-number">Número de tarjeta (16 dígitos simulados):</label>
+                    <label for="card-number">Número de tarjeta (16 dígitos):</label>
                     <input type="text" id="card-number" maxlength="16" placeholder="1234 5678 9101 1121" required>
                 </div>
 
@@ -124,12 +124,80 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-pay">Pagar y Descargar Factura Digital</button>
+                <button type="submit" class="btn-pay">Pagar y Descargar Factura</button>
             </form>
         </div>
     </div>
 
-    <!-- Enlace al JS -->
+    <!-- Script JS -->
     <script src="app.js"></script>
+    <!-- Modal de Contraseña Admin Personalizado -->
+<div id="admin-auth-modal" class="modal hidden">
+    <div class="modal-content auth-modal-content">
+        <span class="close-btn" id="close-auth-modal">&times;</span>
+        <div class="auth-header">
+            <i class="fa-solid fa-shield-halved auth-icon"></i>
+            <h2>Acceso Administrador</h2>
+            <p>Ingresa la contraseña de la Laptop Madre para gestionar la tienda.</p>
+        </div>
+        <form id="admin-auth-form">
+            <div class="form-group">
+                <input type="password" id="admin-pass-input" placeholder="Contraseña..." required>
+            </div>
+            <div class="auth-buttons">
+                <button type="submit" class="btn-primary-glow">Ingresar</button>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- ... Resto de tu HTML ... -->
+
+    <!-- Modal de Contraseña Admin Personalizado -->
+    <div id="admin-auth-modal" class="modal hidden">
+        ...
+    </div>
+
+    <!-- AQUÍ PUEDES AGREGAR EL JS SI NO QUIERES EDITAR app.js -->
+    <script>
+        const adminAuthModal = document.getElementById('admin-auth-modal');
+        const closeAuthModal = document.getElementById('close-auth-modal');
+        const adminAuthForm = document.getElementById('admin-auth-form');
+        const adminPassInput = document.getElementById('admin-pass-input');
+        const btnAdminLogin = document.getElementById('btn-admin-login');
+        const adminPanel = document.getElementById('admin-panel');
+
+        // Abrir modal elegante de contraseña
+        btnAdminLogin.addEventListener('click', () => {
+            adminPassInput.value = '';
+            adminAuthModal.classList.remove('hidden');
+            adminPassInput.focus();
+        });
+
+        // Cerrar modal
+        closeAuthModal.addEventListener('click', () => {
+            adminAuthModal.classList.add('hidden');
+        });
+
+        // Validar clave
+        adminAuthForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = adminPassInput.value;
+
+            if (password === "admin123") { // Cambia "admin123" por tu contraseña
+                adminAuthModal.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                alert("Contraseña incorrecta. Acceso denegado.");
+                adminPassInput.value = '';
+                adminPassInput.focus();
+            }
+        });
+    </script>
+
+    <!-- Tu script principal si lo usas por separado -->
+    <script src="app.js"></script>
+</body>
+</html>
 </body>
 </html>

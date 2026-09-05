@@ -23,13 +23,36 @@ const searchInput = document.getElementById('search-input');
 
 // 2. Control de Acceso al Panel de Laptop Madre
 btnAdminLogin.addEventListener('click', () => {
-    const password = prompt("Ingresa la contraseña de la Laptop Madre para administrar:");
-    if (password === "admin123") { // Contraseña de administración
+// ✅ PEGA ESTE CÓDIGO EN SU LUGAR:
+const adminAuthModal = document.getElementById('admin-auth-modal');
+const closeAuthModal = document.getElementById('close-auth-modal');
+const adminAuthForm = document.getElementById('admin-auth-form');
+const adminPassInput = document.getElementById('admin-pass-input');
+
+btnAdminLogin.addEventListener('click', () => {
+    adminPassInput.value = '';
+    adminAuthModal.classList.remove('hidden');
+    adminPassInput.focus();
+});
+
+closeAuthModal.addEventListener('click', () => {
+    adminAuthModal.classList.add('hidden');
+});
+
+adminAuthForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const password = adminPassInput.value;
+
+    if (password === "admin123") { // Puedes cambiar "admin123" por tu clave
+        adminAuthModal.classList.add('hidden');
         adminPanel.classList.remove('hidden');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (password !== null) {
+    } else {
         alert("Contraseña incorrecta. Acceso denegado.");
+        adminPassInput.value = '';
+        adminPassInput.focus();
     }
+});
 });
 
 closeAdmin.addEventListener('click', () => adminPanel.classList.add('hidden'));
