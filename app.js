@@ -261,7 +261,7 @@ checkoutForm.addEventListener('submit', async (e) => {
         };
 
         // 5. Enviar correo usando EmailJS
-        await emailjs.send("TU_SERVICE_ID", "TU_TEMPLATE_ID", params);
+        await emailjs.send("service_18duwxq", "template_dyts7h1", params);
 
         alert(`¡Pago simulado con éxito!\nFactura descargada y enviada al correo: ${email}`);
 
