@@ -1,10 +1,10 @@
-// 1. Configuración de la conexión con Google Sheets
+// 1. Configuración de conexión con Google Sheets
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwfKpUxfgQ9f8OdmHLdixrDZVI1DZTeQyA-GqS09dNss8a5yAvPtIYC2k_dVtp0hJQTg/exec';
 
 let productos = [];
 let carrito = [];
 
-// Elementos del DOM
+// Elementos DOM
 const productGrid = document.getElementById('product-grid');
 const btnCart = document.getElementById('btn-cart');
 const cartModal = document.getElementById('cart-modal');
@@ -15,14 +15,32 @@ const cartCountElement = document.getElementById('cart-count');
 const checkoutForm = document.getElementById('checkout-form');
 const addProductForm = document.getElementById('add-product-form');
 
-// 2. Obtener productos en tiempo real desde Google Sheets
+// Elementos Admin & Buscador
+const btnAdminLogin = document.getElementById('btn-admin-login');
+const adminPanel = document.getElementById('admin-panel');
+const closeAdmin = document.getElementById('close-admin');
+const searchInput = document.getElementById('search-input');
+
+// 2. Control de Acceso al Panel de Laptop Madre
+btnAdminLogin.addEventListener('click', () => {
+    const password = prompt("Ingresa la contraseña de la Laptop Madre para administrar:");
+    if (password === "admin123") { // Contraseña de administración
+        adminPanel.classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (password !== null) {
+        alert("Contraseña incorrecta. Acceso denegado.");
+    }
+});
+
+closeAdmin.addEventListener('click', () => adminPanel.classList.add('hidden'));
+
+// 3. Cargar productos desde Google Sheets
 async function cargarProductosDesdeSheets() {
-    productGrid.innerHTML = '<p>Cargando catálogo desde la Laptop Madre (Google Sheets)...</p>';
+    productGrid.innerHTML = '<p>Cargando catálogo de productos...</p>';
     try {
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
         
-        // Formatear datos numéricos
         productos = data.map(item => ({
             id: Number(item.id),
             nombre: String(item.nombre),
@@ -31,27 +49,27 @@ async function cargarProductosDesdeSheets() {
             imagen: String(item.imagen)
         }));
 
-        renderProductos();
+        renderProductos(productos);
     } catch (error) {
-        console.error('Error al conectar con Google Sheets:', error);
-        productGrid.innerHTML = '<p>Error al cargar inventario. Revisa la URL de Apps Script.</p>';
+        console.error('Error:', error);
+        productGrid.innerHTML = '<p>Error al cargar el inventario desde Google Sheets.</p>';
     }
 }
 
-// 3. Cargar productos en la pantalla
-function renderProductos() {
+// 4. Renderizar productos
+function renderProductos(lista) {
     productGrid.innerHTML = '';
     
-    if (productos.length === 0) {
-        productGrid.innerHTML = '<p>No hay productos registrados en el inventario.</p>';
+    if (lista.length === 0) {
+        productGrid.innerHTML = '<p>No se encontraron productos.</p>';
         return;
     }
 
-    productos.forEach(prod => {
+    lista.forEach(prod => {
         const card = document.createElement('div');
         card.classList.add('product-card');
         card.innerHTML = `
-            <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/150?text=Sin+Imagen'">
+            <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/150?text=Producto'">
             <h3>${prod.nombre}</h3>
             <p class="price">$${prod.precio.toFixed(2)}</p>
             <p class="stock">Disponibles: <span>${prod.stock}</span></p>
@@ -63,7 +81,14 @@ function renderProductos() {
     });
 }
 
-// 4. Agregar nuevo producto a Google Sheets (Laptop Madre)
+// 5. Buscador en tiempo real
+searchInput.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(term));
+    renderProductos(filtrados);
+});
+
+// 6. Agregar nuevo producto a Google Sheets
 addProductForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -77,7 +102,7 @@ addProductForm.addEventListener('submit', async (e) => {
 
     const btnSubmit = addProductForm.querySelector('button');
     btnSubmit.disabled = true;
-    btnSubmit.textContent = 'Guardando...';
+    btnSubmit.textContent = 'Guardando en Sheets...';
 
     try {
         await fetch(SCRIPT_URL, {
@@ -87,10 +112,9 @@ addProductForm.addEventListener('submit', async (e) => {
             body: JSON.stringify(nuevoProducto)
         });
 
-        alert('¡Producto guardado exitosamente en Google Sheets!');
+        alert('¡Producto guardado exitosamente!');
         addProductForm.reset();
         
-        // Recargar inventario tras guardar
         setTimeout(() => {
             cargarProductosDesdeSheets();
             btnSubmit.disabled = false;
@@ -98,13 +122,13 @@ addProductForm.addEventListener('submit', async (e) => {
         }, 1500);
 
     } catch (error) {
-        alert('Hubo un problema al guardar el producto.');
+        alert('Error al guardar el producto.');
         btnSubmit.disabled = false;
         btnSubmit.textContent = '➕ Guardar en Google Sheets';
     }
 });
 
-// 5. Lógica del Carrito
+// 7. Lógica del Carrito
 function agregarAlCarrito(id) {
     const producto = productos.find(p => p.id === id);
     if (producto && producto.stock > 0) {
@@ -113,7 +137,7 @@ function agregarAlCarrito(id) {
             if (itemEnCarrito.cantidad < producto.stock) {
                 itemEnCarrito.cantidad++;
             } else {
-                alert("Sin más stock disponible.");
+                alert("Alcanzaste el límite de stock.");
                 return;
             }
         } else {
@@ -154,7 +178,7 @@ function actualizarCarritoUI() {
 btnCart.addEventListener('click', () => cartModal.classList.remove('hidden'));
 closeModal.addEventListener('click', () => cartModal.classList.add('hidden'));
 
-// 6. Confirmación de Pago y Actualización de Stock en Sheets
+// 8. Checkout y Facturación
 checkoutForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -172,7 +196,6 @@ checkoutForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    // Actualizar el stock de cada producto en Google Sheets
     for (const item of carrito) {
         await fetch(SCRIPT_URL, {
             method: 'POST',
@@ -186,23 +209,21 @@ checkoutForm.addEventListener('submit', async (e) => {
         });
     }
 
-    // Generar la factura en PDF
     generarFacturaPDF(cliente, email);
 
-    alert(`¡Pago simulado con éxito!\nSe descontó el inventario en Google Sheets y se generó la factura para ${cliente}.`);
+    alert(`¡Pago simulado con éxito!\nFactura generada para ${cliente}.`);
 
     carrito = [];
     actualizarCarritoUI();
     checkoutForm.reset();
     cartModal.classList.add('hidden');
 
-    // Recargar inventario actualizado
     setTimeout(() => {
         cargarProductosDesdeSheets();
     }, 1500);
 });
 
-// 7. Generador de PDF de Factura
+// 9. Generador de PDF
 function generarFacturaPDF(cliente, email) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -246,5 +267,5 @@ function generarFacturaPDF(cliente, email) {
     doc.save(`Factura_TechStore_${Date.now()}.pdf`);
 }
 
-// Inicializar la carga de datos al abrir la página
+// Inicializar
 cargarProductosDesdeSheets();

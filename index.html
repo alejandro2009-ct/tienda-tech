@@ -3,28 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechStore - Tienda Virtual</title>
+    <title>TechStore - Tienda de Tecnología</title>
     <!-- Hoja de estilos CSS -->
     <link rel="stylesheet" href="style.css">
-    <!-- Librería para generar la factura en PDF de forma gratuita -->
+    <!-- Iconos de FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librería para generar factura PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
-    <!-- Encabezado de la página -->
-    <header>
-        <div class="logo">
-            <h1>TechStore 💻</h1>
+    <!-- Top Announcement Bar -->
+    <div class="top-bar">
+        <span>⚡ Preparándonos para las mejores ofertas en Hardware y Laptops ⚡</span>
+    </div>
+
+    <!-- Encabezado Principal -->
+    <header class="main-header">
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-square-check logo-icon"></i>
+                <h1>TechStore</h1>
+            </div>
+
+            <!-- Buscador de productos -->
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Buscar productos, laptops, accesorios...">
+                <button id="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+
+            <!-- Acciones superior (Carrito y Acceso Admin) -->
+            <div class="header-actions">
+                <button id="btn-admin-login" class="icon-btn" title="Panel Administrador">
+                    <i class="fa-solid fa-user-gear"></i>
+                </button>
+                <button id="btn-cart" class="icon-btn cart-btn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="cart-count" class="badge">0</span>
+                </button>
+            </div>
         </div>
-        <nav>
-            <button id="btn-cart">🛒 Carrito (<span id="cart-count">0</span>)</button>
-        </nav>
-    </header>
     </header>
 
-    <!-- Panel de la Laptop Madre / Administrador -->
-    <section class="container admin-panel">
-        <h3>⚙️ Panel de Control - Laptop Madre (Agregar Producto)</h3>
+    <!-- Barra de Categorías -->
+    <nav class="categories-nav">
+        <div class="nav-container">
+            <a href="#" class="nav-link active">Todos</a>
+            <a href="#" class="nav-link">Categorías</a>
+            <a href="#" class="nav-link highlight">Ofertas</a>
+            <a href="#" class="nav-link highlight-gamer">Zona Gamer 🎮</a>
+            <a href="#" class="nav-link">Novedades</a>
+        </div>
+    </nav>
+
+    <!-- Panel de la Laptop Madre / Administrador (OCULTO POR DEFECTO) -->
+    <section id="admin-panel" class="container admin-panel hidden">
+        <div class="admin-header">
+            <h3><i class="fa-solid fa-laptop-code"></i> Panel de Control - Laptop Madre</h3>
+            <button id="close-admin" class="btn-close-admin">&times;</button>
+        </div>
         <form id="add-product-form" class="form-grid">
             <input type="text" id="new-name" placeholder="Nombre del producto" required>
             <input type="number" step="0.01" id="new-price" placeholder="Precio ($)" required>
@@ -34,60 +71,65 @@
         </form>
     </section>
 
-    <!-- Contenido principal: Catálogo de productos -->
+    <!-- Contenido Principal: Catálogo -->
     <main class="container">
-        <h2>Catálogo de Productos Informáticos</h2>
+        <h2 class="section-title">Productos Destacados</h2>
         <div id="product-grid" class="product-grid">
-            <!-- Los productos se cargarán dinámicamente desde app.js -->
+            <!-- Los productos se cargarán desde app.js -->
         </div>
     </main>
 
-    <!-- Ventana flotante (Modal) del Carrito y Proceso de Pago -->
+    <!-- Modal del Carrito y Proceso de Pago -->
     <div id="cart-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-btn" id="close-modal">&times;</span>
-            <h2>Tu Carrito de Compras</h2>
+            <h2><i class="fa-solid fa-cart-shopping"></i> Tu Carrito de Compras</h2>
             
-            <div id="cart-items">
-                <!-- Lista de productos añadidos -->
+            <div id="cart-items" class="cart-items-list">
+                <!-- Productos añadidos -->
             </div>
 
             <div class="cart-summary">
-                <p><strong>Total:</strong> $<span id="cart-total">0.00</span></p>
+                <p><strong>Total a pagar:</strong> $<span id="cart-total">0.00</span></p>
             </div>
 
-            <hr>
+            <hr class="divider">
 
-            <!-- Formulario de Pago y Datos para la Factura -->
-            <h3>Datos de Compra y Pago Simulado</h3>
+            <!-- Formulario de Pago -->
+            <h3><i class="fa-solid fa-credit-card"></i> Datos de Compra y Pago Simulado</h3>
             <form id="checkout-form">
-                <label for="client-name">Nombre completo:</label>
-                <input type="text" id="client-name" placeholder="Ej. Juan Pérez" required>
+                <div class="form-group">
+                    <label for="client-name">Nombre completo:</label>
+                    <input type="text" id="client-name" placeholder="Ej. Juan Pérez" required>
+                </div>
 
-                <label for="client-email">Correo electrónico (para la factura):</label>
-                <input type="email" id="client-email" placeholder="ejemplo@correo.com" required>
+                <div class="form-group">
+                    <label for="client-email">Correo electrónico (para la factura):</label>
+                    <input type="email" id="client-email" placeholder="ejemplo@correo.com" required>
+                </div>
 
-                <h4>Tarjeta de Crédito / Débito (Simulación)</h4>
-                <label for="card-number">Número de tarjeta (16 dígitos):</label>
-                <input type="text" id="card-number" maxlength="16" placeholder="1234 5678 9101 1121" required>
+                <div class="form-group">
+                    <label for="card-number">Número de tarjeta (16 dígitos simulados):</label>
+                    <input type="text" id="card-number" maxlength="16" placeholder="1234 5678 9101 1121" required>
+                </div>
 
                 <div class="form-row">
-                    <div>
+                    <div class="form-group">
                         <label for="card-exp">Expiración:</label>
                         <input type="text" id="card-exp" placeholder="MM/AA" required>
                     </div>
-                    <div>
+                    <div class="form-group">
                         <label for="card-cvv">CVV:</label>
                         <input type="password" id="card-cvv" maxlength="3" placeholder="123" required>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-pay">Confirmar Pago y Generar Factura</button>
+                <button type="submit" class="btn-pay">Pagar y Descargar Factura Digital</button>
             </form>
         </div>
     </div>
 
-    <!-- Enlace al archivo de lógica JavaScript -->
+    <!-- Enlace al JS -->
     <script src="app.js"></script>
 </body>
 </html>
