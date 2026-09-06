@@ -171,6 +171,7 @@ function agregarAlCarrito(id) {
     } else {
         carrito.push({ ...producto, cantidad: 1 });
     }
+
     actualizarCarritoUI();
 }
 
