@@ -182,7 +182,39 @@ function actualizarCarritoUI() {
         cartCount.innerText = totalItems;
     }
 }
+// --- Eventos para abrir y cerrar Modales en Móvil y PC ---
 
+// 1. Abrir Modal del Carrito
+const cartBtn = document.getElementById('cart-icon') || document.querySelector('.cart-icon');
+if (cartBtn) {
+    cartBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        actualizarCarritoUI();
+        const cartModal = document.getElementById('cart-modal');
+        if (cartModal) cartModal.classList.remove('hidden');
+    });
+}
+
+// 2. Cerrar Modal del Carrito
+const closeCartBtn = document.getElementById('close-cart');
+if (closeCartBtn) {
+    closeCartBtn.addEventListener('click', () => {
+        const cartModal = document.getElementById('cart-modal');
+        if (cartModal) cartModal.classList.add('hidden');
+    });
+}
+
+// 3. Abrir Modal de Administrador
+const btnAdmin = document.getElementById('btn-admin-login');
+if (btnAdmin) {
+    btnAdmin.addEventListener('click', (e) => {
+        e.preventDefault();
+        const adminPassInput = document.getElementById('admin-pass-input');
+        if (adminPassInput) adminPassInput.value = '';
+        const adminAuthModal = document.getElementById('admin-auth-modal');
+        if (adminAuthModal) adminAuthModal.classList.remove('hidden');
+    });
+}
 // ==========================================
 // 5. CHECKOUT, DESCARGA PDF Y ENVÍO EMAILJS
 // ==========================================
