@@ -157,43 +157,7 @@
         ...
     </div>
 
-    <!-- AQUÍ PUEDES AGREGAR EL JS SI NO QUIERES EDITAR app.js -->
-    <script>
-        const adminAuthModal = document.getElementById('admin-auth-modal');
-        const closeAuthModal = document.getElementById('close-auth-modal');
-        const adminAuthForm = document.getElementById('admin-auth-form');
-        const adminPassInput = document.getElementById('admin-pass-input');
-        const btnAdminLogin = document.getElementById('btn-admin-login');
-        const adminPanel = document.getElementById('admin-panel');
-
-        // Abrir modal elegante de contraseña
-        btnAdminLogin.addEventListener('click', () => {
-            adminPassInput.value = '';
-            adminAuthModal.classList.remove('hidden');
-            adminPassInput.focus();
-        });
-
-        // Cerrar modal
-        closeAuthModal.addEventListener('click', () => {
-            adminAuthModal.classList.add('hidden');
-        });
-
-        // Validar clave
-        adminAuthForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const password = adminPassInput.value;
-
-            if (password === "admin123") { // Cambia "admin123" por tu contraseña
-                adminAuthModal.classList.add('hidden');
-                adminPanel.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                alert("Contraseña incorrecta. Acceso denegado.");
-                adminPassInput.value = '';
-                adminPassInput.focus();
-            }
-        });
-    </script>
+  
 
     <!-- Tu script principal si lo usas por separado -->
     <script src="app.js"></script>
@@ -213,5 +177,7 @@
 </script>
 </body>
 </html>
+</body>
+</html><script src="app.js"></script>
 </body>
 </html>

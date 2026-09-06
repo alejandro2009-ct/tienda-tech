@@ -1,69 +1,120 @@
-// 1. Configuración de conexión con Google Sheets
+// ==========================================
+// 1. CONFIGURACIÓN E INICIALIZACIÓN GLOBAL
+// ==========================================
+// Reemplaza la URL con la de tu ejecutable de Google Apps Script
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwfKpUxfgQ9f8OdmHLdixrDZVI1DZTeQyA-GqS09dNss8a5yAvPtIYC2k_dVtp0hJQTg/exec';
 
 let productos = [];
 let carrito = [];
 
-// Elementos DOM
+// Elementos del DOM
 const productGrid = document.getElementById('product-grid');
-const btnCart = document.getElementById('btn-cart');
 const cartModal = document.getElementById('cart-modal');
-const closeModal = document.getElementById('close-modal');
-const cartItemsContainer = document.getElementById('cart-items');
-const cartTotalElement = document.getElementById('cart-total');
-const cartCountElement = document.getElementById('cart-count');
 const checkoutForm = document.getElementById('checkout-form');
-const addProductForm = document.getElementById('add-product-form');
 
-// Elementos Admin & Buscador
-const btnAdminLogin = document.getElementById('btn-admin-login');
-const adminPanel = document.getElementById('admin-panel');
-const closeAdmin = document.getElementById('close-admin');
-const searchInput = document.getElementById('search-input');
-
-// 2. Control de Acceso al Panel de Laptop Madre
-btnAdminLogin.addEventListener('click', () => {
-// ✅ PEGA ESTE CÓDIGO EN SU LUGAR:
+// Elementos del Administrador
 const adminAuthModal = document.getElementById('admin-auth-modal');
 const closeAuthModal = document.getElementById('close-auth-modal');
 const adminAuthForm = document.getElementById('admin-auth-form');
 const adminPassInput = document.getElementById('admin-pass-input');
+const btnAdminLogin = document.getElementById('btn-admin-login');
+const adminPanel = document.getElementById('admin-panel');
+const closeAdmin = document.getElementById('close-admin');
+const addProductForm = document.getElementById('add-product-form');
 
-btnAdminLogin.addEventListener('click', () => {
-    adminPassInput.value = '';
-    adminAuthModal.classList.remove('hidden');
-    adminPassInput.focus();
-});
-
-closeAuthModal.addEventListener('click', () => {
-    adminAuthModal.classList.add('hidden');
-});
-
-adminAuthForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const password = adminPassInput.value;
-
-    if (password === "admin123") { // Puedes cambiar "admin123" por tu clave
-        adminAuthModal.classList.add('hidden');
-        adminPanel.classList.remove('hidden');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        alert("Contraseña incorrecta. Acceso denegado.");
+// ==========================================
+// 2. MODAL Y PANEL DE ADMINISTRACIÓN
+// ==========================================
+if (btnAdminLogin) {
+    btnAdminLogin.addEventListener('click', () => {
         adminPassInput.value = '';
+        adminAuthModal.classList.remove('hidden');
         adminPassInput.focus();
-    }
-});
-});
+    });
+}
 
-closeAdmin.addEventListener('click', () => adminPanel.classList.add('hidden'));
+if (closeAuthModal) {
+    closeAuthModal.addEventListener('click', () => {
+        adminAuthModal.classList.add('hidden');
+    });
+}
 
-// 3. Cargar productos desde Google Sheets
+if (adminAuthForm) {
+    adminAuthForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // Cambia 'admin123' por tu clave deseada
+        if (adminPassInput.value === 'admin123') { 
+            adminAuthModal.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+        } else {
+            alert("Contraseña incorrecta. Acceso denegado.");
+            adminPassInput.value = '';
+            adminPassInput.focus();
+        }
+    });
+}
+
+if (closeAdmin) {
+    closeAdmin.addEventListener('click', () => {
+        adminPanel.classList.add('hidden');
+    });
+}
+
+// Agregar nuevo producto a Google Sheets
+if (addProductForm) {
+    addProductForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const btnSubmit = addProductForm.querySelector('button[type="submit"]');
+        const originalText = btnSubmit ? btnSubmit.innerText : 'Guardar';
+        if (btnSubmit) {
+            btnSubmit.innerText = 'Guardando en Google Sheets...';
+            btnSubmit.disabled = true;
+        }
+
+        const nuevoProducto = {
+            action: 'addProduct',
+            nombre: document.getElementById('new-name').value,
+            precio: parseFloat(document.getElementById('new-price').value),
+            stock: parseInt(document.getElementById('new-stock').value),
+            imagen: document.getElementById('new-image').value
+        };
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoProducto)
+            });
+
+            alert('Producto agregado con éxito a la base de datos.');
+            addProductForm.reset();
+            cargarProductosDesdeSheets();
+        } catch (error) {
+            alert('Error al conectar con Google Sheets.');
+            console.error(error);
+        } finally {
+            if (btnSubmit) {
+                btnSubmit.innerText = originalText;
+                btnSubmit.disabled = false;
+            }
+        }
+    });
+}
+
+// ==========================================
+// 3. CARGA DE PRODUCTOS Y RENDERIZADO
+// ==========================================
 async function cargarProductosDesdeSheets() {
-    productGrid.innerHTML = '<p>Cargando catálogo de productos...</p>';
+    if (!productGrid) return;
+    
+    productGrid.innerHTML = '<p class="loading">Cargando catálogo de productos...</p>';
+
     try {
         const res = await fetch(SCRIPT_URL);
         const data = await res.json();
-        
+
         productos = data.map(item => ({
             id: Number(item.id),
             nombre: String(item.nombre),
@@ -74,224 +125,153 @@ async function cargarProductosDesdeSheets() {
 
         renderProductos(productos);
     } catch (error) {
-        console.error('Error:', error);
-        productGrid.innerHTML = '<p>Error al cargar el inventario desde Google Sheets.</p>';
+        console.error('Error al cargar inventario:', error);
+        productGrid.innerHTML = '<p class="error">Error al cargar el inventario desde Google Sheets.</p>';
     }
 }
 
-// 4. Renderizar productos
-function renderProductos(lista) {
+function renderProductos(items) {
     productGrid.innerHTML = '';
     
-    if (lista.length === 0) {
-        productGrid.innerHTML = '<p>No se encontraron productos.</p>';
+    if (items.length === 0) {
+        productGrid.innerHTML = '<p>No hay productos disponibles por el momento.</p>';
         return;
     }
 
-    lista.forEach(prod => {
+    items.forEach(prod => {
         const card = document.createElement('div');
-        card.classList.add('product-card');
+        card.className = 'product-card';
         card.innerHTML = `
-            <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/150?text=Producto'">
+            <img src="${prod.imagen}" alt="${prod.nombre}" onerror="this.src='https://via.placeholder.com/150'">
             <h3>${prod.nombre}</h3>
             <p class="price">$${prod.precio.toFixed(2)}</p>
-            <p class="stock">Disponibles: <span>${prod.stock}</span></p>
-            <button class="btn-add" onclick="agregarAlCarrito(${prod.id})" ${prod.stock <= 0 ? 'disabled' : ''}>
-                ${prod.stock <= 0 ? 'Agotado' : 'Añadir al Carrito'}
+            <p class="stock">Disponibles: ${prod.stock}</p>
+            <button onclick="agregarAlCarrito(${prod.id})" ${prod.stock <= 0 ? 'disabled' : ''}>
+                ${prod.stock > 0 ? 'Agregar al Carrito' : 'Agotado'}
             </button>
         `;
         productGrid.appendChild(card);
     });
 }
 
-// 5. Buscador en tiempo real
-searchInput.addEventListener('input', (e) => {
-    const term = e.target.value.toLowerCase();
-    const filtrados = productos.filter(p => p.nombre.toLowerCase().includes(term));
-    renderProductos(filtrados);
-});
-
-// 6. Agregar nuevo producto a Google Sheets
-addProductForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const nuevoProducto = {
-        action: 'add',
-        nombre: document.getElementById('new-name').value,
-        precio: parseFloat(document.getElementById('new-price').value),
-        stock: parseInt(document.getElementById('new-stock').value),
-        imagen: document.getElementById('new-image').value
-    };
-
-    const btnSubmit = addProductForm.querySelector('button');
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = 'Guardando en Sheets...';
-
-    try {
-        await fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(nuevoProducto)
-        });
-
-        alert('¡Producto guardado exitosamente!');
-        addProductForm.reset();
-        
-        setTimeout(() => {
-            cargarProductosDesdeSheets();
-            btnSubmit.disabled = false;
-            btnSubmit.textContent = '➕ Guardar en Google Sheets';
-        }, 1500);
-
-    } catch (error) {
-        alert('Error al guardar el producto.');
-        btnSubmit.disabled = false;
-        btnSubmit.textContent = '➕ Guardar en Google Sheets';
-    }
-});
-
-// 7. Lógica del Carrito
+// ==========================================
+// 4. LÓGICA DEL CARRITO DE COMPRAS
+// ==========================================
 function agregarAlCarrito(id) {
     const producto = productos.find(p => p.id === id);
-    if (producto && producto.stock > 0) {
-        const itemEnCarrito = carrito.find(item => item.id === id);
-        if (itemEnCarrito) {
-            if (itemEnCarrito.cantidad < producto.stock) {
-                itemEnCarrito.cantidad++;
-            } else {
-                alert("Alcanzaste el límite de stock.");
-                return;
-            }
+    if (!producto || producto.stock <= 0) return;
+
+    const itemEnCarrito = carrito.find(p => p.id === id);
+    if (itemEnCarrito) {
+        if (itemEnCarrito.cantidad < producto.stock) {
+            itemEnCarrito.cantidad++;
         } else {
-            carrito.push({ ...producto, cantidad: 1 });
+            alert('Has alcanzado el límite de stock disponible.');
         }
-        actualizarCarritoUI();
+    } else {
+        carrito.push({ ...producto, cantidad: 1 });
     }
+    actualizarCarritoUI();
 }
 
 function actualizarCarritoUI() {
-    cartItemsContainer.innerHTML = '';
-    let total = 0;
-    let totalCount = 0;
-
-    carrito.forEach(item => {
-        const itemTotal = item.precio * item.cantidad;
-        total += itemTotal;
-        totalCount += item.cantidad;
-
-        const cartItem = document.createElement('div');
-        cartItem.classList.add('cart-item');
-        cartItem.innerHTML = `
-            <div>
-                <strong>${item.nombre}</strong><br>
-                <small>$${item.precio.toFixed(2)} x ${item.cantidad}</small>
-            </div>
-            <div>
-                <strong>$${itemTotal.toFixed(2)}</strong>
-            </div>
-        `;
-        cartItemsContainer.appendChild(cartItem);
-    });
-
-    cartTotalElement.textContent = total.toFixed(2);
-    cartCountElement.textContent = totalCount;
+    // Si tienes función para actualizar el contador de ítems o lista del carrito visual, se ejecuta aquí
+    const cartCount = document.getElementById('cart-count');
+    if (cartCount) {
+        const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        cartCount.innerText = totalItems;
+    }
 }
 
-btnCart.addEventListener('click', () => cartModal.classList.remove('hidden'));
-closeModal.addEventListener('click', () => cartModal.classList.add('hidden'));
+// ==========================================
+// 5. CHECKOUT, DESCARGA PDF Y ENVÍO EMAILJS
+// ==========================================
+if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-// 8. Checkout y Facturación
-// --- Evento Checkout: Actualizar Stock, Descargar PDF y Enviar Correo ---
-checkoutForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+        const cliente = document.getElementById('client-name').value;
+        const email = document.getElementById('client-email').value;
+        const tarjeta = document.getElementById('card-number').value;
 
-    const cliente = document.getElementById('client-name').value;
-    const email = document.getElementById('client-email').value;
-    const tarjeta = document.getElementById('card-number').value;
-
-    if (tarjeta.length < 16) {
-        alert("Ingresa un número de tarjeta válido (16 dígitos).");
-        return;
-    }
-
-    const btnPay = checkoutForm.querySelector('.btn-pay');
-    const textoOriginal = btnPay ? btnPay.innerText : "Pagar";
-    if (btnPay) {
-        btnPay.innerText = "Procesando pago y enviando factura...";
-        btnPay.disabled = true;
-    }
-
-    try {
-        // 1. Actualizar el stock en Google Sheets
-        for (const item of carrito) {
-            await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'updateStock',
-                    id: item.id,
-                    cantidad: item.cantidad
-                })
-            });
+        if (tarjeta.length < 16) {
+            alert("Ingresa un número de tarjeta válido (16 dígitos).");
+            return;
         }
 
-        // 2. Generar y descargar el PDF localmente
-        generarFacturaPDF(cliente, email);
-
-        // 3. Formatear la lista de productos para el correo de EmailJS
-        let listaProductos = "";
-        let totalFactura = 0;
-
-        carrito.forEach(prod => {
-            const subtotal = prod.precio * prod.cantidad;
-            totalFactura += subtotal;
-            listaProductos += `• ${prod.nombre} (x${prod.cantidad}): $${subtotal.toFixed(2)}\n`;
-        });
-
-        // 4. Parámetros para enviar por EmailJS
-        const params = {
-            cliente_nombre: cliente,
-            cliente_email: email,
-            numero_factura: Math.floor(100000 + Math.random() * 900000),
-            fecha: new Date().toLocaleDateString('es-SV'),
-            total_pago: totalFactura.toFixed(2),
-            detalles_compra: listaProductos
-        };
-
-        // 5. Enviar correo usando EmailJS
-        await emailjs.send("service_18duwxq", "template_dyts7h1", params);
-
-        alert(`¡Pago simulado con éxito!\nFactura descargada y enviada al correo: ${email}`);
-
-        // Limpiar carrito y cerrar modal
-        carrito = [];
-        if (typeof actualizarCarritoUI === "function") {
-            actualizarCarritoUI();
-        }
-        checkoutForm.reset();
-        const cartModal = document.getElementById('cart-modal');
-        if (cartModal) cartModal.classList.add('hidden');
-
-        setTimeout(() => {
-            if (typeof cargarProductosDesdeSheets === "function") {
-                cargarProductosDesdeSheets();
-            }
-        }, 1500);
-
-    } catch (error) {
-        alert("Ocurrió un error al procesar la transacción o enviar el correo.");
-        console.error("Error en checkout:", error);
-    } finally {
+        const btnPay = checkoutForm.querySelector('.btn-pay');
+        const textoOriginal = btnPay ? btnPay.innerText : "Pagar";
         if (btnPay) {
-            btnPay.innerText = textoOriginal;
-            btnPay.disabled = false;
+            btnPay.innerText = "Procesando pago y enviando factura...";
+            btnPay.disabled = true;
         }
-    }
-});
 
-// --- Generador de PDF ---
+        try {
+            // 1. Actualizar stock en Google Sheets
+            for (const item of carrito) {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'updateStock',
+                        id: item.id,
+                        cantidad: item.cantidad
+                    })
+                });
+            }
+
+            // 2. Generar PDF
+            generarFacturaPDF(cliente, email);
+
+            // 3. Preparar variables para EmailJS
+            let listaProductos = "";
+            let totalFactura = 0;
+
+            carrito.forEach(prod => {
+                const subtotal = prod.precio * prod.cantidad;
+                totalFactura += subtotal;
+                listaProductos += `• ${prod.nombre} (x${prod.cantidad}): $${subtotal.toFixed(2)}\n`;
+            });
+
+            const params = {
+                cliente_nombre: cliente,
+                cliente_email: email,
+                numero_factura: Math.floor(100000 + Math.random() * 900000),
+                fecha: new Date().toLocaleDateString('es-SV'),
+                total_pago: totalFactura.toFixed(2),
+                detalles_compra: listaProductos
+            };
+
+            // 4. Enviar correo (coloca tus IDs de EmailJS)
+            await emailjs.send("service_18duwxq", "template_dyts7h1", params);
+
+            alert(`¡Pago simulado con éxito!\nFactura descargada y enviada a: ${email}`);
+
+            carrito = [];
+            actualizarCarritoUI();
+            checkoutForm.reset();
+            if (cartModal) cartModal.classList.add('hidden');
+
+            setTimeout(() => {
+                cargarProductosDesdeSheets();
+            }, 1500);
+
+        } catch (error) {
+            alert("Ocurrió un error al procesar la compra o enviar el correo.");
+            console.error("Error en checkout:", error);
+        } finally {
+            if (btnPay) {
+                btnPay.innerText = textoOriginal;
+                btnPay.disabled = false;
+            }
+        }
+    });
+}
+
+// ==========================================
+// 6. GENERADOR DE FACTURA EN PDF (jsPDF)
+// ==========================================
 function generarFacturaPDF(cliente, email) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -334,3 +314,8 @@ function generarFacturaPDF(cliente, email) {
 
     doc.save(`Factura_TechStore_${Date.now()}.pdf`);
 }
+
+// ==========================================
+// 7. INICIALIZACIÓN
+// ==========================================
+cargarProductosDesdeSheets();
