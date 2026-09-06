@@ -154,68 +154,51 @@ function renderProductos(items) {
     });
 }
 
-// ==========================================
-// 4. LÓGICA DEL CARRITO DE COMPRAS
-// ==========================================
-function agregarAlCarrito(id) {
-    const producto = productos.find(p => p.id === id);
-    if (!producto || producto.stock <= 0) return;
-
-    const itemEnCarrito = carrito.find(p => p.id === id);
-    if (itemEnCarrito) {
-        if (itemEnCarrito.cantidad < producto.stock) {
-            itemEnCarrito.cantidad++;
-        } else {
-            alert('Has alcanzado el límite de stock disponible.');
-        }
-    } else {
-        carrito.push({ ...producto, cantidad: 1 });
-    }
-
-    actualizarCarritoUI();
-}
-
-function actualizarCarritoUI() {
-    // Si tienes función para actualizar el contador de ítems o lista del carrito visual, se ejecuta aquí
-    const cartCount = document.getElementById('cart-count');
-    if (cartCount) {
-        const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-        cartCount.innerText = totalItems;
-    }
-}
-// --- Eventos para abrir y cerrar Modales en Móvil y PC ---
-
-// 1. Abrir Modal del Carrito
-const cartBtn = document.getElementById('cart-icon') || document.querySelector('.cart-icon');
-if (cartBtn) {
-    cartBtn.addEventListener('click', (e) => {
+// --- Control del Modal del Carrito ---
+document.addEventListener('click', (e) => {
+    // 1. Abrir Carrito (si se hace clic en el botón o dentro del icono/contador)
+    if (e.target.closest('#cart-icon') || e.target.closest('.cart-icon')) {
         e.preventDefault();
-        actualizarCarritoUI();
+        if (typeof actualizarCarritoUI === 'function') {
+            actualizarCarritoUI();
+        }
         const cartModal = document.getElementById('cart-modal');
-        if (cartModal) cartModal.classList.remove('hidden');
-    });
-}
+        if (cartModal) {
+            cartModal.style.display = 'flex'; // Forzamos visibilidad directa
+            cartModal.classList.remove('hidden');
+        }
+    }
 
-// 2. Cerrar Modal del Carrito
-const closeCartBtn = document.getElementById('close-cart');
-if (closeCartBtn) {
-    closeCartBtn.addEventListener('click', () => {
+    // 2. Cerrar Carrito
+    if (e.target.closest('#close-modal') || e.target.closest('#close-cart')) {
         const cartModal = document.getElementById('cart-modal');
-        if (cartModal) cartModal.classList.add('hidden');
-    });
-}
+        if (cartModal) {
+            cartModal.style.display = 'none';
+            cartModal.classList.add('hidden');
+        }
+    }
 
-// 3. Abrir Modal de Administrador
-const btnAdmin = document.getElementById('btn-admin-login');
-if (btnAdmin) {
-    btnAdmin.addEventListener('click', (e) => {
+    // 3. Abrir Admin
+    if (e.target.closest('#btn-admin-login')) {
         e.preventDefault();
         const adminPassInput = document.getElementById('admin-pass-input');
         if (adminPassInput) adminPassInput.value = '';
         const adminAuthModal = document.getElementById('admin-auth-modal');
-        if (adminAuthModal) adminAuthModal.classList.remove('hidden');
-    });
-}
+        if (adminAuthModal) {
+            adminAuthModal.style.display = 'flex';
+            adminAuthModal.classList.remove('hidden');
+        }
+    }
+
+    // 4. Cerrar Admin
+    if (e.target.closest('#close-auth-modal')) {
+        const adminAuthModal = document.getElementById('admin-auth-modal');
+        if (adminAuthModal) {
+            adminAuthModal.style.display = 'none';
+            adminAuthModal.classList.add('hidden');
+        }
+    }
+});
 // ==========================================
 // 5. CHECKOUT, DESCARGA PDF Y ENVÍO EMAILJS
 // ==========================================
